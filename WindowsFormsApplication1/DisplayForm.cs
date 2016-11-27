@@ -14,6 +14,8 @@ namespace ShutdownServerWithHdmi
     public partial class DisplayForm : Form
     {
 
+        private int countDown = -1;
+
         // https://msdn.microsoft.com/en-us/library/system.windows.forms.timer.tick.aspx
         public DisplayForm()
         {
@@ -34,7 +36,7 @@ namespace ShutdownServerWithHdmi
             myTimer.Tick += new EventHandler(TimerEventProcessor);
 
             // Sets the timer interval to 5 seconds.
-            myTimer.Interval = 3000;
+            myTimer.Interval = 1000;
             myTimer.Start();
 
 
@@ -51,15 +53,18 @@ namespace ShutdownServerWithHdmi
         private  void TimerEventProcessor(Object myObject,
                                                 EventArgs myEventArgs)
         {
-
             // Restarts the timer and increments the counter.
             alarmCounter += 1;
             myTimer.Enabled = true;
 
-
             ShowScreens();
 
-            
+            if (countDown > 0)
+            {
+                CuentaRegresiva();
+            }else if (countDown==0){
+                shutdownNow();
+            }
 
         }
 
@@ -89,8 +94,45 @@ namespace ShutdownServerWithHdmi
 
             display1.Text = output;
 
-      
+
+            if (monitors.Length == 1)
+            {
+                shutdownProcess();
+            }
 
         }
+
+        private void shutdownProcess()
+        {
+            countDown = 60;
+
+        }
+
+        private void CuentaRegresiva()
+        {
+            countDown--;
+            btnCancel.Text = "Cancelar (" + countDown.ToString() + ")";
+        }
+        
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            cancelShutdown();
+        }
+
+        private void cancelShutdown()
+        {
+            countDown = -1;
+        }
+
+        private void shutdownNow()
+        {
+            display1.Text = "Se apagó";
+        }
+
+        private void DisplayForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }
