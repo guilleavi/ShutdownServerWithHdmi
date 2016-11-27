@@ -13,20 +13,20 @@ namespace ShutdownServerWithHdmi
 {
     public partial class DisplayForm : Form
     {
-
-        private int countDown = -1;
+        // countDown status:
+        // -1       No se esta apagando
+        //  0       Apagar
+        // 60to1    Cuenta regresiva - apagandose
+        private int countDown = -1; 
 
         // https://msdn.microsoft.com/en-us/library/system.windows.forms.timer.tick.aspx
         public DisplayForm()
-        {
-            
+        {          
 
             InitializeComponent();
 
             RunTimer();
-        }
-
-     
+        }    
 
         public void RunTimer()
         {
@@ -39,12 +39,10 @@ namespace ShutdownServerWithHdmi
             myTimer.Interval = 1000;
             myTimer.Start();
 
-
             // Processes all the events in the queue.
             Application.DoEvents();
 
         }
-
 
         static System.Windows.Forms.Timer myTimer = new System.Windows.Forms.Timer();
         static int alarmCounter = 10;
@@ -62,7 +60,9 @@ namespace ShutdownServerWithHdmi
             if (countDown > 0)
             {
                 CuentaRegresiva();
-            }else if (countDown==0){
+
+            } else if (countDown==0)
+            {
                 shutdownNow();
             }
 
@@ -94,24 +94,29 @@ namespace ShutdownServerWithHdmi
 
             display1.Text = output;
 
-
             if (monitors.Length == 1)
             {
                 shutdownProcess();
+            }
+            else
+            {
+                cancelShutdown();
             }
 
         }
 
         private void shutdownProcess()
         {
-            countDown = 60;
-
+            if (countDown == -1)
+            {
+                countDown = 60;
+            }
         }
 
         private void CuentaRegresiva()
         {
             countDown--;
-            btnCancel.Text = "Cancelar (" + countDown.ToString() + ")";
+            btnCancel.Text = "Cancel (" + countDown.ToString() + ")";
         }
         
         private void btnCancel_Click(object sender, EventArgs e)
@@ -122,6 +127,7 @@ namespace ShutdownServerWithHdmi
         private void cancelShutdown()
         {
             countDown = -1;
+            btnCancel.Text = "Cancel";
         }
 
         private void shutdownNow()
